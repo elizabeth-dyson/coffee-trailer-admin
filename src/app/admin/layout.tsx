@@ -3,6 +3,10 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
+type AppUserMetadata = {
+  app_role?: string;
+};
+
 export default async function AdminLayout({ children }: { children: ReactNode }) {
     const supabase = createSupabaseServerClient();
 
@@ -10,7 +14,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
     if (!user) redirect('/login');
 
-    const role = (user.user_metadata as any)?.app_role ?? '';
+    const role = (user.user_metadata as AppUserMetadata)?.app_role ?? '';
     if (!['owner', 'manager'].includes(role)) redirect('/login');
 
     return (
