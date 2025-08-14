@@ -49,7 +49,6 @@ export default function ItemsForCategoryPage() {
       const { data, error } = await supabase
         .from('categories')
         .select('*')
-        .eq('is_active', true)
         .order('sort_order').order('name');
       if (!mounted) return;
       if (error) setErr(error.message);
@@ -164,7 +163,9 @@ export default function ItemsForCategoryPage() {
           }}
         >
           {cats.map(c => (
-            <option key={c.id} value={c.id}>{c.name}</option>
+            <option key={c.id} value={c.id}>
+              {c.name}{c.is_active ? '' : ' (inactive)'}
+            </option>
           ))}
         </select>
       </div>
