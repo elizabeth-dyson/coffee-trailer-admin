@@ -4,6 +4,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import Link from 'next/link';
 
 type Category = {
   id: number;
@@ -234,8 +235,16 @@ function CategoryRow({
           </div>
         ) : (
           <div className='flex items-center gap-3'>
-            <span>{cat.name}</span>
-            <button className='text-xs text-blue-600' onClick={() => setEditing(true)}>Edit</button>
+            <Link
+              href={`/admin/menu/${cat.id}`}
+              className='text-blue-600 hover:underline'
+              title="Open items in this category"
+            >
+              {cat.name}
+            </Link>
+            <button className='text-xs text-gray-600' onClick={() => setEditing(true)}>
+              Edit
+            </button>
           </div>
         )}
       </td>
