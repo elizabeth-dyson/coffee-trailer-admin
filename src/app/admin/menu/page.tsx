@@ -276,12 +276,15 @@ function CategoryRow({
           <span>{cat.is_active ? 'Active' : 'Inactive'}</span>
         </label>
       </td>
-      <button
-        onClick={() => onDelete(cat.id, cat.name)}
-        className='inline-flex items-center text-sm bg-red-500 text-white rounded hover:bg-red-600'
-      >
-        Delete
-      </button>
+
+      <td className='px-4 py-2'>
+        <button
+          onClick={() => onDelete(cat.id, cat.name)}
+          className='px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600'
+        >
+          Delete
+        </button>
+      </td>
     </tr>
   );
 }
