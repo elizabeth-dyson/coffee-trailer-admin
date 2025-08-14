@@ -175,10 +175,6 @@ export default function MenuPage() {
           </tbody>
         </table>
       </div>
-
-      <p className='text-xs text-gray-500'>
-        Tip: display lists ordered by <code>sort_order, name</code>. After any change, re-fetch.
-      </p>
     </div>
   );
 }

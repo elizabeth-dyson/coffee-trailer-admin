@@ -65,7 +65,7 @@ export default function LoginPage() {
         </button>
 
         <p className="text-xs text-gray-500">
-          Your user shoudl have <code>app_role</code> in metadata (owner/manager).
+          Your user should have <code>app_role</code> in metadata (owner/manager).
         </p>
       </form>
     </main>
