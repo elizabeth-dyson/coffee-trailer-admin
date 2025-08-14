@@ -125,6 +125,20 @@ export default function ItemsForCategoryPage() {
     await refresh();
   }
 
+  async function deleteItem(id: number, name: string) {
+    const confirmed = confirm(
+      `Are you sure you want to delete "${name}"?`
+    );
+    if (!confirmed) return;
+
+    const { error } = await supabase.from('items').delete().eq('id', id);
+    if (error) {
+      alert(`Error deleting item: ${error.message}`);
+    } else {
+      await refresh();
+    }
+  }
+
   async function move(id: number, dir: 'up' | 'down') {
     const idx = items.findIndex(i => i.id === id);
     if (idx < 0) return;
@@ -215,7 +229,7 @@ export default function ItemsForCategoryPage() {
               <th className="px-4 py-2">Image</th>
               <th className="px-4 py-2 w-28">Featured</th>
               <th className="px-4 py-2 w-28">Active</th>
-              <th className="px-4 py-2 w-16">ID</th>
+              <th className="px-4 py-2">Delete</th>
             </tr>
           </thead>
           <tbody>
@@ -227,6 +241,7 @@ export default function ItemsForCategoryPage() {
                 isLast={i === items.length - 1}
                 onMove={move}
                 onUpdate={updateItem}
+                onDelete={deleteItem}
               />
             ))}
           </tbody>
@@ -237,12 +252,13 @@ export default function ItemsForCategoryPage() {
 }
 
 /* --- ItemRow component ------------------------------------------------ */
-function ItemRow({ it, isFirst, isLast, onMove, onUpdate }: {
+function ItemRow({ it, isFirst, isLast, onMove, onUpdate, onDelete }: {
   it: Item;
   isFirst: boolean;
   isLast: boolean;
   onMove: (id: number, dir: 'up' | 'down') => void;
   onUpdate: (id: number, patch: Partial<Item>) => Promise<void>;
+  onDelete: (id: number, name: string) => void;
 }) {
   const [name, setName] = useState(it.name);
   const [desc, setDesc] = useState(it.description ?? '');
@@ -322,7 +338,12 @@ function ItemRow({ it, isFirst, isLast, onMove, onUpdate }: {
         </label>
       </td>
 
-      <td className="px-4 py-2 text-gray-500">{it.id}</td>
+      <button
+        onClick={async () => onDelete}
+        className='px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600'
+      >
+        Delete
+      </button>
     </tr>
   );
 }
