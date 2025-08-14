@@ -277,7 +277,7 @@ function CategoryRow({
         </label>
       </td>
       <button
-        onClick={async () => onDelete}
+        onClick={() => onDelete(cat.id, cat.name)}
         className='px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600'
       >
         Delete
