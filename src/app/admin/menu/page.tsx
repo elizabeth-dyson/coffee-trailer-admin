@@ -158,7 +158,6 @@ export default function MenuPage() {
               <th className='px-4 py-2 w-16'>Order</th>
               <th className='px-4 py-2'>Name</th>
               <th className='px-4 py-2 w-28'>Active</th>
-              <th className='px-4 py-2 w-40'>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -258,10 +257,6 @@ function CategoryRow({
           />
           <span>{cat.is_active ? 'Active' : 'Inactive'}</span>
         </label>
-      </td>
-
-      <td className='px-4 py-2'>
-        <span className='text-gray-500'>id: {cat.id}</span>
       </td>
     </tr>
   );
