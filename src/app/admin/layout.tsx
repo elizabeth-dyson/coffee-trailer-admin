@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import SignOutButton from '@/components/SignOutButton';
 
 type AppUserMetadata = {
   app_role?: string;
@@ -30,6 +31,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
                     </nav>
                     <div className="text-sm text-gray-600">
                         {user.email} • {role}
+                        <SignOutButton />
                     </div>
                 </div>
             </header>

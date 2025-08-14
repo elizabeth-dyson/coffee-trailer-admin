@@ -1,3 +1,7 @@
+export const metadata = {
+    title: "Coffee Trailer Admin Home",
+};
+
 export default function AdminHome() {
     const Card = ({ href, title, desc }: { href: string; title: string; desc: string; }) => (
         <a className="p-6 rounded-xl border bg-white hover:shadow transition" href={href}>
