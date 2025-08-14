@@ -213,7 +213,7 @@ function CategoryRow({
   const [name, setName] = useState(cat.name);
 
   return (
-    <tr className='border-t'>
+    <tr className='border-t align-middle'>
       <td className='px-4 py-2'>
         <div className='flex gap-1'>
           <button

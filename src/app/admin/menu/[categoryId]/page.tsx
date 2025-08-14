@@ -265,7 +265,7 @@ function ItemRow({ it, isFirst, isLast, onMove, onUpdate, onDelete }: {
   const [price, setPrice] = useState(it.base_price.toFixed(2));
 
   return (
-    <tr className="border-t align-top">
+    <tr className="border-t align-middle">
       <td className="px-4 py-2">
         <div className="flex gap-1">
           <button 
