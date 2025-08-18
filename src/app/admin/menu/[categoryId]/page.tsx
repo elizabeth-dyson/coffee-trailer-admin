@@ -300,6 +300,13 @@ function ItemRow({ it, isFirst, isLast, onMove, onUpdate, onDelete }: {
             onChange={(e) => setDesc(e.target.value)}
             onBlur={() => (desc !== (it.description ?? '')) && onUpdate(it.id, { description: desc || null })}
           />
+          <Link
+            href={`/admin/menu/${it.category_id}/${it.id}`}
+            className="text-xs text-blue-600 underline"
+            title="Manage variants for this item"
+          >
+            Manage variants →
+          </Link>
         </div>
       </td>
 
