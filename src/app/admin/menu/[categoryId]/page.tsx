@@ -161,6 +161,7 @@ export default function ItemsForCategoryPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Items</h1>
+        <Link href="/admin/menu/libraries" className="text-blue-600 hover:text-blue-800 underline text-base">Libraries</Link>
         <Link href="/admin/menu" className="text-sm text-blue-600 hover:underline">← Back to Categories</Link>
       </div>
 

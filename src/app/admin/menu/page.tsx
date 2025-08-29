@@ -144,8 +144,13 @@ export default function MenuPage() {
   }
   return (
     <div className='space-y-6'>
-      <h1 className='text-xl font-semibold'>Menu Manager - Categories</h1>
-
+      <div className='flex justify-between items-center'>
+        <h1 className='text-xl font-semibold'>Menu Manager - Categories</h1>
+        <Link href={"/admin/menu/libraries"} className='text-blue-600 hover:text-blue-800 underline text-base'>
+          Libraries
+        </Link>
+      </div>
+      
       {/* Add new */}
       <div className='flex gap-2'>
         <input

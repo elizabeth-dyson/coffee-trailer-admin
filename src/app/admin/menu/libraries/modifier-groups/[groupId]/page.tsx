@@ -1,224 +1,214 @@
+// Add, modify, or delete modifiers within each group. 
+// Add link back to groups library
+
 'use client';
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { useParams } from "next/navigation";
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
-type Category = {
+type ModifierGroup = {
   id: number;
   name: string;
-};
+  selection_type: string;
+}
 
-type Item = {
+type Modifier = {
   id: number;
-  category_id: number;
-  name: string;
-  base_price: number;
-};
-
-type Variant = {
-  id: number;
-  item_id: number;
+  group_id: number;
   name: string;
   price_delta: number;
-  sort_order: number;
   is_active: boolean;
-};
+  affects_prep: boolean;
+  sort_order: number;
+}
 
-export default function VariantsPage() {
+export default function ModifiersPage() {
   const supabase = createSupabaseBrowserClient();
-  const params = useParams<{ categoryId: string; itemId: string }>();
+  const params = useParams<{ groupId: string; }>();
+  const groupId = Number(params.groupId);
 
-  const categoryId = Number(params.categoryId);
-  const itemId = Number(params.itemId);
-
-  const [cat, setCat] = useState<Category | null>(null);
-  const [item, setItem] = useState<Item | null>(null);
-  const [vars_, setVars] = useState<Variant[]>([]);
+  const [group, setGroup] = useState<ModifierGroup | null>(null);
+  const [modifiers, setModifiers] = useState<Modifier[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  // new variant inputs
-  const [vName, setVName] = useState('');
-  const [vDelta, setVDelta] = useState('0.00');
-
+  const [mName, setMName] = useState('');
+  const [mDelta, setMDelta] = useState('0.00');
+  const [mPrep, setMPrep] = useState(false);
+    
   useEffect(() => {
     let mounted = true;
     (async () => {
       setLoading(true);
       setErr(null);
 
-      const [cQ, iQ, vQ] = await Promise.all([
-        supabase.from('categories')
-          .select('id,name')
-          .eq('id', categoryId)
+      const [gQ, mQ] = await Promise.all([
+        supabase.from('modifier-groups')
+          .select('id,name,selection_type')
+          .eq('id', groupId)
           .maybeSingle(),
-        supabase.from('items')
-          .select('id,category_id,name,base_price')
-          .eq('id', itemId)
-          .maybeSingle(),
-        supabase.from('variants')
+        supabase.from('modifiers')
           .select('*')
-          .eq('item_id', itemId)
+          .eq('group_id', groupId)
           .order('sort_order')
           .order('name'),
       ]);
 
       if (!mounted) return;
 
-      if (cQ.error) setErr(cQ.error.message);
-      else setCat(cQ.data as Category | null);
+      if (gQ.error) setErr(gQ.error.message);
+      else setGroup(gQ.data as ModifierGroup | null);
 
-      if (iQ.error) setErr(iQ.error.message);
-      else setItem(iQ.data as Item | null);
-
-      if (vQ.error) setErr(vQ.error.message);
-      else setVars((vQ.data ?? []) as Variant[]);
+      if (mQ.error) setErr(mQ.error.message);
+      else setModifiers((mQ.data ?? []) as Modifier[]);
 
       setLoading(false);
     })();
     return () => { mounted = false };
-  }, [categoryId, itemId, supabase]);
+  }, [groupId, supabase]);
 
   const maxSort = useMemo(
-    () => (vars_.length ? Math.max(...vars_.map(v => v.sort_order)) : 0),
-    [vars_]
+    () => (modifiers.length ? Math.max(...modifiers.map(m => m.sort_order)) : 0),
+    [modifiers]
   );
 
   async function refresh() {
     const { data, error } = await supabase
-      .from('variants')
+      .from('modifiers')
       .select('*')
-      .eq('item_id', itemId)
+      .eq('group_id', groupId)
       .order('sort_order')
       .order('name');
     if (error) setErr(error.message);
-    else setVars((data ?? []) as Variant[]);
+    else setModifiers((data ?? []) as Modifier[]);
   }
 
-  async function addVariant() {
-    const name = vName.trim();
-    const delta = Number.parseFloat(vDelta);
+  async function addModifier() {
+    const name = mName.trim();
+    const delta = Number.parseFloat(mDelta);
+    const prep = mPrep;
+
     if (!name || Number.isNaN(delta)) return;
 
     setErr(null);
-    const { error } = await supabase.from('variants').insert({
-      item_id: itemId,
+    const { error } = await supabase.from('modifiers').insert({
+      group_id: groupId,
       name,
       price_delta: delta,
       is_active: true,
+      affects_prep: prep,
       sort_order: maxSort + 1,
     });
     if (error) setErr(error.message);
-    setVName(''); setVDelta('0.00');
+    setMName(''); setMDelta('0.00'); setMPrep(false);
     await refresh();
   }
 
-  async function updateVariant(id: number, patch: Partial<Variant>) {
+  async function updateModifier(id: number, patch: Partial<Modifier>) {
     setErr(null);
-    const { error } = await supabase.from('variants').update(patch).eq('id', id);
+    const { error } = await supabase.from('modifiers').update(patch).eq('id', id);
     if (error) setErr(error.message);
     await refresh();
   }
 
-  async function deleteVariant(id: number, name: string) {
-    const confirmed = confirm(`Delete variant "${name}"?`);
+  async function deleteModifier(id: number, name: string) {
+    const confirmed = confirm(`Delete modifier "${name}"?`);
     if (!confirmed) return;
-    const { error } = await supabase.from('variants').delete().eq('id', id);
-    if (error) alert(`Error deleting variant: ${error.message}`);
+    const { error } = await supabase.from('modifiers').delete().eq('id', id);
+    if (error) alert(`Error deleting modifier: ${error.message}`);
     else await refresh();
   }
 
   async function move(id: number, dir: 'up' | 'down') {
-    const idx = vars_.findIndex(v => v.id === id);
+    const idx = modifiers.findIndex(m => m.id === id);
     if (idx < 0) return;
     const targetIdx = dir === 'up' ? idx - 1 : idx + 1;
-    if (targetIdx < 0 || targetIdx >= vars_.length) return;
+    if (targetIdx < 0 || targetIdx >= modifiers.length) return;
 
-    const a = vars_[idx];
-    const b = vars_[targetIdx];
+    const a = modifiers[idx];
+    const b = modifiers[targetIdx];
 
-    const u1 = supabase.from('variants').update({ sort_order: b.sort_order }).eq('id', a.id);
-    const u2 = supabase.from('variants').update({ sort_order: a.sort_order }).eq('id', b.id);
+    const u1 = supabase.from('modifiers').update({ sort_order: b.sort_order }).eq('id', a.id);
+    const u2 = supabase.from('modifiers').update({ sort_order: a.sort_order }).eq('id', b.id);
     const [{ error: e1 }, { error: e2 }] = await Promise.all([u1, u2]);
     if (e1 || e2) setErr((e1?.message || e2?.message) ?? null);
     await refresh();
   }
 
-  if (loading) return <div>Loading variants...</div>;
-  if (!item) return <div className="text-red-600">Item not found.</div>;
+  if (loading) return <div>Loading modifiers...</div>;
+  if (!group) return <div className="text-red-600">Item not found.</div>;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">
-          Variants — <span className="font-normal text-gray-600">{item.name}</span>
+          Modifiers - <span className="font-normal text-gray-600">{group.name}</span>
         </h1>
         <div className="flex items-center gap-4">
           <Link href="/admin/menu/libraries" className="text-blue-600 hover:text-blue-800 underline text-base">
             Libraries
           </Link>
-          <Link href={`/admin/menu/${categoryId}`} className="text-sm text-blue-600 hover:underline">
-            ← Back to Items
-          </Link>
-          <Link href="/admin/menu" className="text-sm text-blue-600 hover:underline">
-            Categories
+          <Link href="/admin/menu/libraries/modifier-groups" className="text-sm text-blue-600 hover:underline">
+            ← Back to Groups
           </Link>
         </div>
       </div>
 
-      {/* New variant form */}
-      <div className="grid gap-2 sm:grid-cols-3">
+      {/* New modifier form*/}
+      <div className="grid gap-2 sm:grid-cols-4">
         <input
           className="border rounded px-3 py-2 bg-white"
-          placeholder="Variant name (e.g., Large)"
-          value={vName}
-          onChange={(e) => setVName(e.target.value)}
+          placeholder="Modifier name (e.g. Whole Milk)"
+          value={mName}
+          onChange={(e) => setMName(e.target.value)}
         />
         <input
           className="border rounded px-3 py-2 bg-white"
           placeholder="Price delta (e.g., 0.50 or -0.25)"
           inputMode="decimal"
-          value={vDelta}
-          onChange={(e) => setVDelta(e.target.value)}
+          value={mDelta}
+          onChange={(e) => setMDelta(e.target.value)}
         />
+        {/* Add affects prep checkbox */}
         <div>
           <button
-            onClick={() => startTransition(addVariant)}
-            disabled={isPending || !vName.trim()}
+            onClick={() => startTransition(addModifier)}
+            disabled={isPending || !mName.trim()}
             className="rounded bg-black text-white px-4 py-2 disabled:opacity-50"
           >
-            {isPending ? 'Adding...' : 'Add variant'}
+            {isPending ? 'Adding...' : 'Add modifier'}
           </button>
         </div>
       </div>
 
       {err && <p className="text-red-600 text-sm">{err}</p>}
 
-      {/* Variants table */}
+      {/* Modifiers table */}
       <div className="overflow-hidden rounded-xl border bg-white">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left">
             <tr>
               <th className="px-4 py-2 w-20">Order</th>
-              <th className="px-4 py-2">Variant</th>
+              <th className="px-4 py-2">Modifier</th>
               <th className="px-4 py-2 w-28">Δ Price</th>
-              <th className="px-4 py-2 w-28">Active</th>
+              <th className="px-4 py-2 w-28">Affects Prep?</th>
+              <th className="px-4 py-2 w-28">Active?</th>
               <th className="px-4 py-2">Delete</th>
             </tr>
           </thead>
           <tbody>
-            {vars_.map((v, i) => (
-              <VariantRow
-                key={v.id}
-                v={v}
+            {modifiers.map((m, i) => (
+              <ModifierRow
+                key={m.id}
+                m={m}
                 isFirst={i === 0}
-                isLast={i === vars_.length - 1}
+                isLast={i === modifiers.length - 1}
                 onMove={move}
-                onUpdate={updateVariant}
-                onDelete={deleteVariant}
+                onUpdate={updateModifier}
+                onDelete={deleteModifier}
               />
             ))}
           </tbody>
@@ -228,17 +218,17 @@ export default function VariantsPage() {
   );
 }
 
-function VariantRow({ v, isFirst, isLast, onMove, onUpdate, onDelete }: {
-  v: Variant;
+function ModifierRow({ m, isFirst, isLast, onMove, onUpdate, onDelete }: {
+  m: Modifier;
   isFirst: boolean;
   isLast: boolean;
   onMove: (id: number, dir: 'up' | 'down') => void;
-  onUpdate: (id: number, patch: Partial<Variant>) => Promise<void>;
+  onUpdate: (id: number, patch: Partial<Modifier>) => Promise<void>;
   onDelete: (id: number, name: string) => void;
 }) {
-  const [name, setName] = useState(v.name);
-  const [delta, setDelta] = useState(v.price_delta.toFixed(2));
-
+  const [name, setName] = useState(m.name);
+  const [delta, setDelta] = useState(m.price_delta.toFixed(2));
+  
   return (
     <tr className="border-t align-middle">
       <td className="px-4 py-2">
@@ -246,13 +236,13 @@ function VariantRow({ v, isFirst, isLast, onMove, onUpdate, onDelete }: {
           <button
             className="rounded border px-2 py-1 disabled:opacity-40"
             disabled={isFirst}
-            onClick={() => onMove(v.id, 'up')}
+            onClick={() => onMove(m.id, 'up')}
             title="Move up"
           >▲</button>
           <button
             className="rounded border px-2 py-1 disabled:opacity-40"
             disabled={isLast}
-            onClick={() => onMove(v.id, 'down')}
+            onClick={() => onMove(m.id, 'down')}
             title="Move down"
           >▼</button>
         </div>
@@ -263,7 +253,7 @@ function VariantRow({ v, isFirst, isLast, onMove, onUpdate, onDelete }: {
           className="border rounded px-2 py-1 bg-white"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          onBlur={() => name !== v.name && onUpdate(v.id, { name })}
+          onBlur={() => name !== m.name && onUpdate(m.id, { name })}
         />
       </td>
 
@@ -275,7 +265,7 @@ function VariantRow({ v, isFirst, isLast, onMove, onUpdate, onDelete }: {
           onChange={(e) => setDelta(e.target.value)}
           onBlur={() => {
             const d = Number.parseFloat(delta);
-            if (!Number.isNaN(d) && d !== v.price_delta) void onUpdate(v.id, { price_delta: d });
+            if (!Number.isNaN(d) && d !== m.price_delta) void onUpdate(m.id, { price_delta: d });
           }}
         />
       </td>
@@ -284,16 +274,16 @@ function VariantRow({ v, isFirst, isLast, onMove, onUpdate, onDelete }: {
         <label className="inline-flex items-center gap-2">
           <input
             type="checkbox"
-            checked={v.is_active}
-            onChange={(e) => void onUpdate(v.id, { is_active: e.target.checked })}
-          />
-          <span>{v.is_active ? 'Active' : 'Inactive'}</span>
+            checked={m.is_active}
+            onChange={(e) => void onUpdate(m.id, { is_active: e.target.checked })}
+            />
+            <span>{m.is_active ? 'Active' : 'Inactive'}</span>
         </label>
       </td>
 
       <td className="px-4 py-2">
         <button
-          onClick={() => onDelete(v.id, v.name)}
+          onClick={() => onDelete(m.id, m.name)}
           className="px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
         >
           Delete
