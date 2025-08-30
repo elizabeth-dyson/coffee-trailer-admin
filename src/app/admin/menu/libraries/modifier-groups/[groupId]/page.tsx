@@ -46,7 +46,7 @@ export default function ModifiersPage() {
       setErr(null);
 
       const [gQ, mQ] = await Promise.all([
-        supabase.from('modifier-groups')
+        supabase.from('modifier_groups')
           .select('id,name,selection_type')
           .eq('id', groupId)
           .maybeSingle(),

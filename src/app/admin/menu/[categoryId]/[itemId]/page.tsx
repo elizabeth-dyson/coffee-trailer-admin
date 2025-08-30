@@ -5,11 +5,6 @@ import { useParams } from "next/navigation";
 import Link from 'next/link';
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
-type Category = {
-  id: number;
-  name: string;
-};
-
 type Item = {
   id: number;
   category_id: number;
@@ -33,7 +28,6 @@ export default function VariantsPage() {
   const categoryId = Number(params.categoryId);
   const itemId = Number(params.itemId);
 
-  const [cat, setCat] = useState<Category | null>(null);
   const [item, setItem] = useState<Item | null>(null);
   const [vars_, setVars] = useState<Variant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,11 +44,7 @@ export default function VariantsPage() {
       setLoading(true);
       setErr(null);
 
-      const [cQ, iQ, vQ] = await Promise.all([
-        supabase.from('categories')
-          .select('id,name')
-          .eq('id', categoryId)
-          .maybeSingle(),
+      const [iQ, vQ] = await Promise.all([
         supabase.from('items')
           .select('id,category_id,name,base_price')
           .eq('id', itemId)
@@ -68,9 +58,6 @@ export default function VariantsPage() {
 
       if (!mounted) return;
 
-      if (cQ.error) setErr(cQ.error.message);
-      else setCat(cQ.data as Category | null);
-
       if (iQ.error) setErr(iQ.error.message);
       else setItem(iQ.data as Item | null);
 
@@ -79,8 +66,8 @@ export default function VariantsPage() {
 
       setLoading(false);
     })();
-    return () => { mounted = false };
-  }, [categoryId, itemId, supabase]);
+    return () => { mounted = false; };
+  }, [itemId, supabase]);
 
   const maxSort = useMemo(
     () => (vars_.length ? Math.max(...vars_.map(v => v.sort_order)) : 0),

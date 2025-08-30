@@ -51,7 +51,7 @@ export default function ModifierGroupLibrary() {
 
   async function refresh() {
     const { data, error } = await supabase
-      .from('modifier-groups')
+      .from('modifier_groups')
       .select('id,name,selection_type,sort_order')
       .order('sort_order').order('name');
     if (error) setErr(error.message);
@@ -64,7 +64,7 @@ export default function ModifierGroupLibrary() {
     if (!name || !selectionType) return;
 
     setErr(null);
-    const { error } = await supabase.from('modifier-groups').insert({
+    const { error } = await supabase.from('modifier_groups').insert({
       name,
       selection_type: selectionType,
       sort_order: maxSort + 1,
@@ -76,7 +76,7 @@ export default function ModifierGroupLibrary() {
 
   async function updateGroup(id: number, patch: Partial<ModifierGroup>) {
     setErr(null);
-    const { error } = await supabase.from('modifier-groups').update(patch).eq('id', id);
+    const { error } = await supabase.from('modifier_groups').update(patch).eq('id', id);
     if (error) setErr(error.message);
     await refresh();
   }
@@ -84,7 +84,7 @@ export default function ModifierGroupLibrary() {
   async function deleteGroup(id: number, name: string) {
     const confirmed = confirm(`Delete modifier group "${name}"?`);
     if (!confirmed) return;
-    const { error } = await supabase.from('modifier-groups').delete().eq('id', id);
+    const { error } = await supabase.from('modifier_groups').delete().eq('id', id);
     if (error) alert(`Error deleting modifier group: ${error.message}`);
     else await refresh();
   }
@@ -98,8 +98,8 @@ export default function ModifierGroupLibrary() {
     const a = groups[idx];
     const b = groups[targetIdx];
 
-    const u1 = supabase.from('modifier-groups').update({ sort_order: b.sort_order }).eq('id', a.id);
-    const u2 = supabase.from('modifier-groups').update({ sort_order: a.sort_order }).eq('id', b.id);
+    const u1 = supabase.from('modifier_groups').update({ sort_order: b.sort_order }).eq('id', a.id);
+    const u2 = supabase.from('modifier_groups').update({ sort_order: a.sort_order }).eq('id', b.id);
     const [{ error: e1 }, { error: e2 }] = await Promise.all([u1, u2]);
     if (e1 || e2) setErr((e1?.message || e2?.message) ?? null);
     await refresh();
