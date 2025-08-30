@@ -429,18 +429,6 @@ function ItemModifierGroupRow({ lin, isFirst, isLast, onMove, onUpdate, onDelete
           disabled={true}
         >{lin.modifier_groups.selection_type}</button>
       </td>
-      
-      {/* Active? */}
-      <td className="px-4 py-2">
-        <label className="inline-flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={lin.is_active}
-            onChange={(e) => void onUpdate(lin.id, { is_active: e.target.checked })}
-          />
-          <span>{lin.is_active ? 'Active' : 'Inactive'}</span>
-        </label>
-      </td>
 
       {/* Required? */}
       <td className="px-4 py-2">
@@ -451,6 +439,18 @@ function ItemModifierGroupRow({ lin, isFirst, isLast, onMove, onUpdate, onDelete
             onChange={(e) => void onUpdate(lin.id, { is_required: e.target.checked })}
           />
           <span>{lin.is_required ? 'Required' : 'Not Required'}</span>
+        </label>
+      </td>
+
+      {/* Active? */}
+      <td className="px-4 py-2">
+        <label className="inline-flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={lin.is_active}
+            onChange={(e) => void onUpdate(lin.id, { is_active: e.target.checked })}
+          />
+          <span>{lin.is_active ? 'Active' : 'Inactive'}</span>
         </label>
       </td>
 
