@@ -457,7 +457,7 @@ function ItemModifierGroupRow({ lin, isFirst, isLast, onMove, onUpdate, onDelete
       {/* Max Choices */}
       <td className="px-4 py-2">
         <input
-          className="border rounded px-2 py-1 bg-white disabled:bg-gray-100"
+          className="border rounded px-2 py-1 bg-white disabled:bg-gray-100 w-16"
           type="number"
           min="1"
           value={maxChoices || ''}
