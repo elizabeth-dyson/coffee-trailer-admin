@@ -308,6 +308,13 @@ function ItemRow({ it, isFirst, isLast, onMove, onUpdate, onDelete }: {
           >
             Manage variants →
           </Link>
+          <Link
+            href={`/admin/menu/${it.category_id}/${it.id}/modifiers`}
+            className="text-xs text-blue-600 underline"
+            title="Manage modifiers for this item"
+          >
+            Manage modifiers →
+          </Link>
         </div>
       </td>
 
