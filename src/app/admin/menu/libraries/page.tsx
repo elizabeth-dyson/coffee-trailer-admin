@@ -1,4 +1,4 @@
-export const metadat = {
+export const metadata = {
   title: "Coffee Trailer Libraries",
 };
 
