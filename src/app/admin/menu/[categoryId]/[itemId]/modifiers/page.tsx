@@ -347,7 +347,7 @@ export default function ItemModifiersPage() {
               <th className="px-4 py-2">Modifier Group (Selection Type)</th>
               <th className="px-4 py-2 w-28">Required?</th>
               <th className="px-4 py-2 w-28">Active?</th>
-              <th className="px-4 py-2 w-20">Max Choices</th>
+              <th className="px-4 py-2 w-12">Max Choices</th>
               <th className="px-4 py-2 w-28">Default Modifier</th>
               <th className="px-4 py-2">Delete</th>
             </tr>
