@@ -188,6 +188,7 @@ function GroupRow({ g, isFirst, isLast, onMove, onUpdate, onDelete }: {
   onUpdate: (id: number, patch: Partial<ModifierGroup>) => Promise<void>;
   onDelete: (id: number, name: string) => void;
 }) {
+  const [editing, setEditing] = useState(false);
   const [name, setName] = useState(g.name);
   const [selection_type, setType] = useState(g.selection_type);
 
@@ -211,12 +212,38 @@ function GroupRow({ g, isFirst, isLast, onMove, onUpdate, onDelete }: {
       </td>
 
       <td className="px-4 py-2">
-        <input
-          className="border rounded px-2 py-1 bg-white"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onBlur={() => name !== g.name && onUpdate(g.id, { name })}
-        />
+        {editing ? (
+          <div className="flex gap-2">
+            <input
+              className="border rounded px-2 py-1 bg-white"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoFocus
+            />
+            <button
+              className="rounded bg-black text-white px-3"
+              onClick={() => { setEditing(false); if (name !== g.name) onUpdate(g.id, { name }); }}
+            >
+              Save
+            </button>
+            <button className="rounded border px-3" onClick={() => { setEditing(false); setName(g.name); }}>
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/admin/menu/libraries/modifier-groups/${g.id}`}
+              className="text-blue-600 hover:underline"
+              title="Open modifiers in this group"
+            >
+              {g.name}
+            </Link>
+            <button className="text-xs text-gray-600" onClick={() => setEditing(true)}>
+              Edit
+            </button>
+          </div>
+        )}
       </td>
 
       <td className="px-4 py-2">
