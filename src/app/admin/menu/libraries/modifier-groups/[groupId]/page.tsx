@@ -274,6 +274,17 @@ function ModifierRow({ m, isFirst, isLast, onMove, onUpdate, onDelete }: {
         <label className="inline-flex items-center gap-2">
           <input
             type="checkbox"
+            checked={m.affects_prep}
+            onChange={(e) => void onUpdate(m.id, { affects_prep: e.target.checked })}
+          />
+          <span>{m.affects_prep ? 'Prep Affected' : 'Prep Not Affected'}</span>
+        </label>
+      </td>
+
+      <td className="px-4 py-2">
+        <label className="inline-flex items-center gap-2">
+          <input
+            type="checkbox"
             checked={m.is_active}
             onChange={(e) => void onUpdate(m.id, { is_active: e.target.checked })}
             />
